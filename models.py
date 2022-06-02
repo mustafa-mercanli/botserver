@@ -14,6 +14,9 @@ class Bot:
 
     def validate(params):
         for key in params:
+            if key == "token":
+                continue
+
             input = params[key]
             if key not in Bot.VALIDATION_SCHEMA.keys():
                 raise ValidationErr("Unexpected param : %s" % key)
@@ -27,7 +30,8 @@ class Bot:
                 if set(input) - set(alloweds):
                     raise ValidationErr("Allowed items for param %s -> %s" % (key,",".join(alloweds)))
 
-        return True
+        params.pop("token",None)
+        return params
 
     name = None
     intents = None
