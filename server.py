@@ -1,8 +1,15 @@
 from models import Bot,BotAlreadyExistErr,ValidationErr
-from fastapi import FastAPI,status,HTTPException,Request
+from fastapi import FastAPI,status,HTTPException,Request,Depends
 from json.decoder import JSONDecodeError
+from fastapi.security import HTTPBasic, HTTPBasicCredentials
 
 app = FastAPI()
+
+username = "admin"
+password = "admin"
+token = "sup3rs3cr3t"
+
+security = HTTPBasic()
 
 @app.get("/")
 async def root():
@@ -14,7 +21,10 @@ async def bot():
 
 
 @app.get("/bot/{bot_name}")
-async def get_bot(bot_name):
+async def get_bot(bot_name,credentials: HTTPBasicCredentials = Depends(security)):
+    if not [username,password] == [credentials.username,credentials.password]:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,detail="Wrong credentials")
+
     bot = Bot.get(name=bot_name)
     if not bot:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="Bot name not found")
@@ -23,7 +33,10 @@ async def get_bot(bot_name):
     
 
 @app.post("/bot/{bot_name}")
-async def post_bot(request: Request,bot_name):
+async def post_bot(bot_name,request: Request,credentials: HTTPBasicCredentials = Depends(security)):
+    if not [username,password] == [credentials.username,credentials.password]:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,detail="Wrong credentials")
+
     try:
         body = await request.json()
     except JSONDecodeError:
@@ -48,7 +61,10 @@ async def post_bot(request: Request,bot_name):
     return new_bot.json()
 
 @app.put("/bot/{bot_name}")
-async def put_bot(request: Request,bot_name):
+async def put_bot(request: Request,bot_name,credentials: HTTPBasicCredentials = Depends(security)):
+    if not [username,password] == [credentials.username,credentials.password]:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,detail="Wrong credentials")
+
     try:
         body = await request.json()
     except JSONDecodeError:
@@ -74,7 +90,10 @@ async def put_bot(request: Request,bot_name):
     return current_bot.json()
 
 @app.patch("/bot/{bot_name}")
-async def patch_bot(request: Request,bot_name):
+async def patch_bot(request: Request,bot_name,credentials: HTTPBasicCredentials = Depends(security)):
+    if not [username,password] == [credentials.username,credentials.password]:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,detail="Wrong credentials")
+
     try:
         body = await request.json()
     except JSONDecodeError:
@@ -98,7 +117,10 @@ async def patch_bot(request: Request,bot_name):
     return current_bot.json()
 
 @app.delete("/bot/{bot_name}")
-async def put_bot(bot_name):
+async def put_bot(bot_name,credentials: HTTPBasicCredentials = Depends(security)):
+    if not [username,password] == [credentials.username,credentials.password]:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,detail="Wrong credentials")
+
     bot = Bot.get(name=bot_name)
     if not bot:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)

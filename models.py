@@ -10,16 +10,22 @@ class ValidationErr(Exception):
 
 
 class Bot:
-    VALIDATION_SCHEMA = {"intents":list,"url":str}
+    VALIDATION_SCHEMA = {"intents":{"type":list,"allowed":["play_sound","tell_joke","disconnect"]},"url":{"type":str}}
 
     def validate(params):
         for key in params:
+            input = params[key]
             if key not in Bot.VALIDATION_SCHEMA.keys():
                 raise ValidationErr("Unexpected param : %s" % key)
             
-            expected_type = Bot.VALIDATION_SCHEMA[key]
-            if not type(params[key]) == expected_type:
+            expected_type = Bot.VALIDATION_SCHEMA[key]["type"]
+            if not type(input) == expected_type:
                 raise ValidationErr("Expected type for param %s -> %s" % (key,expected_type))
+            
+            alloweds = Bot.VALIDATION_SCHEMA[key].get("allowed")
+            if alloweds:
+                if set(input) - set(alloweds):
+                    raise ValidationErr("Allowed items for param %s -> %s" % (key,",".join(alloweds)))
 
         return True
 
