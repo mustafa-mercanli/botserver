@@ -1,0 +1,141 @@
+{
+	"variables": [],
+	"info": {
+		"name": "bostserver",
+		"_postman_id": "d4c5d177-f56a-9c6b-7531-a59175b54352",
+		"description": "",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "http://127.0.0.1:8000/bot/mustafa",
+			"request": {
+				"url": "http://127.0.0.1:8000/bot/mustafa",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": "",
+						"disabled": true
+					},
+					{
+						"key": "Authorization",
+						"value": "Basic YWRtaW46YWRtaW4=",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"url\":\"mustafa.com\",\n\t\"intents\":[\"play_sound\"],\n\t\"token\":\"sup3rs3cr3t\"\n\t\n}"
+				},
+				"description": "Create a bot"
+			},
+			"response": []
+		},
+		{
+			"name": "http://127.0.0.1:8000/bot/mustafa",
+			"request": {
+				"url": "http://127.0.0.1:8000/bot/mustafa",
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": "",
+						"disabled": true
+					},
+					{
+						"key": "Authorization",
+						"value": "Basic YWRtaW46YWRtaW4=",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"url\":\"mustafa.com\",\n\t\"intents\":[\"play_sound\",\"tell_joke\"],\n\t\"token\":\"sup3rs3cr3t\"\n\t\n}"
+				},
+				"description": "Update a bot"
+			},
+			"response": []
+		},
+		{
+			"name": "http://127.0.0.1:8000/bot/mustafa",
+			"request": {
+				"url": "http://127.0.0.1:8000/bot/mustafa",
+				"method": "PATCH",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": "",
+						"disabled": true
+					},
+					{
+						"key": "Authorization",
+						"value": "Basic YWRtaW46YWRtaW4=",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"intents\":[\"play_sound\",\"tell_joke\",\"disconnect\"],\n\t\"token\":\"sup3rs3cr3t\"\n\t\n}"
+				},
+				"description": "Partially update a bot"
+			},
+			"response": []
+		},
+		{
+			"name": "http://127.0.0.1:8000/bot/mustafa",
+			"request": {
+				"url": "http://127.0.0.1:8000/bot/mustafa",
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": "",
+						"disabled": true
+					},
+					{
+						"key": "Authorization",
+						"value": "Basic YWRtaW46YWRtaW4=",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"token\":\"sup3rs3cr3t\"\n\t\n}"
+				},
+				"description": "Delete a bot"
+			},
+			"response": []
+		},
+		{
+			"name": "http://127.0.0.1:8000/bot/mustafa",
+			"request": {
+				"url": "http://127.0.0.1:8000/bot/mustafa",
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": "",
+						"disabled": true
+					},
+					{
+						"key": "Authorization",
+						"value": "Basic YWRtaW46YWRtaW4=",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"token\":\"sup3rs3cr3t\"\n\t\n}"
+				},
+				"description": "Get a bot"
+			},
+			"response": []
+		}
+	]
+}

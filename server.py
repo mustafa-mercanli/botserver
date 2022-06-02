@@ -6,11 +6,12 @@ from typing import Optional
 from json.decoder import JSONDecodeError
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 import base64
+import config
 
 app = FastAPI()
 
-basic_auth = "Basic "+base64.b64encode(b"admin:admin").decode()
-token = "sup3rs3cr3t"
+basic_auth = "Basic "+base64.b64encode(f"{config.username}:{config.password}".encode()).decode()
+token = config.token
 
 security = HTTPBasic()
 
