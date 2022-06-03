@@ -1,13 +1,15 @@
 # Botserver Web Service
 ## Dependencies
 * **Redis-server**: Bot instances are stored in Redis Database. 
-For windows you can download and redis-server from the link https://github.com/microsoftarchive/redis/releases/download/win-3.0.504/Redis-x64-3.0.504.msi 
+For windows you can download and install redis-server from the link https://github.com/microsoftarchive/redis/releases/download/win-3.0.504/Redis-x64-3.0.504.msi 
 * **Python 3.x**
 ## Installation
 ```
 pip install fastapi
 pip install uvicorn
 pip install redis
+pip install requests
+pip install pytest
 ```
 or
 ```

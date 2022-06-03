@@ -128,7 +128,10 @@ class Bot:
     def unexpected(self):
         pass
     
-
+    
+    def clear_bots():
+        for key in r.keys():
+            r.delete(key)
 
    
 

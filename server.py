@@ -165,3 +165,16 @@ async def get_bot(bot_name,intent,request: Request,authorization: Optional[str] 
 
     return {"result":result}
 
+
+@app.delete("/bot")
+async def clear_bots(request: Request,authorization: Optional[str] = Header(None)):
+    try:
+        body = await request.json()
+    except:
+        body = {}
+
+    authenticator(body,authorization)
+
+    Bot.clear_bots()
+
+    return {"result":"ok"}
