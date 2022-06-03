@@ -146,7 +146,7 @@ async def delete_bot(bot_name,request: Request,authorization: Optional[str] = He
 
 
 @app.get("/bot/{bot_name}/{intent}")
-async def get_bot(bot_name,intent,request: Request,authorization: Optional[str] = Header(None)):
+async def intent_bot(bot_name,intent,request: Request,authorization: Optional[str] = Header(None)):
     try:
         body = await request.json()
     except:
@@ -161,7 +161,7 @@ async def get_bot(bot_name,intent,request: Request,authorization: Optional[str] 
     try:
         result = getattr(bot,intent,bot.unexpected)()
     except NotCapableErr as e:
-        result = str(e)
+        raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE,detail="Bot is not capable for doing that")
 
     return {"result":result}
 

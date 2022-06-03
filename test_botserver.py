@@ -28,6 +28,8 @@ class MethodNotAllowedErr(Exception):
 class BotNotFoundErr(Exception):
     pass
 
+class BotNotCapableErr(Exception):
+    pass
 
 
 @pytest.fixture(scope="module")
@@ -74,6 +76,8 @@ class TestBotServer:
                 raise ConflictErr(json.dumps(resp.json()))
             elif resp.status_code == 405:
                 raise MethodNotAllowedErr(json.dumps(resp.json()))
+            elif resp.status_code == 406:
+                raise BotNotCapableErr(json.dumps(resp.json()))
             else:
                 raise InternalServerErr(resp.content.decode())
         
@@ -108,9 +112,112 @@ class TestBotServer:
                 raise ConflictErr(json.dumps(resp.json()))
             elif resp.status_code == 405:
                 raise MethodNotAllowedErr(json.dumps(resp.json()))
+            elif resp.status_code == 406:
+                raise BotNotCapableErr(json.dumps(resp.json()))
+            else:
+                raise InternalServerErr(resp.content.decode())
+
+    @pytest.mark.parametrize("auth_type,secret,name,intent", [
+                                                        ("basic_auth",basic_auth,"bot1","play_sound"),
+                                                        ("token",token,"bot1","play_sound"),
+                                                        pytest.param("basic_auth",basic_auth,"bot1","explain_yourself",marks=pytest.mark.xfail(raises=BotNotCapableErr)),
+                                                        ])
+    def test_intent(self,added_bots,auth_type,secret,name,intent):
+        body = {}
+        req_url = endpoint+"/"+name+"/"+intent
+        if auth_type == "basic_auth":
+            headers = {"Authorization":secret}
+            resp = requests.get(req_url,json=body,headers=headers)
+        else:
+            body.update(token=secret)
+            resp = requests.get(req_url,json=body) 
+
+        if not resp.ok:
+            if resp.status_code == 401:
+                raise AuthenticationErr(json.dumps(resp.json()))
+            elif resp.status_code == 400:
+                raise WrongInput(json.dumps(resp.json()))
+            elif resp.status_code == 404:
+                raise BotNotFoundErr(json.dumps(resp.json()))
+            elif resp.status_code == 409:
+                raise ConflictErr(json.dumps(resp.json()))
+            elif resp.status_code == 405:
+                raise MethodNotAllowedErr(json.dumps(resp.json()))
+            elif resp.status_code == 406:
+                raise BotNotCapableErr(json.dumps(resp.json()))
             else:
                 raise InternalServerErr(resp.content.decode())
 
     
+    @pytest.mark.parametrize("auth_type,secret,name,intents,url", [
+                                                  pytest.param("basic_auth","WrongCredentials","skip_basic_auth", "","", marks=pytest.mark.xfail(raises=AuthenticationErr)),
+                                                  pytest.param("token","WrongCredentials","skip_token","","", marks=pytest.mark.xfail(raises=AuthenticationErr)),
+                                                  ("basic_auth",basic_auth,"bot1",None,"bot1.com"),
+                                                  ("token",token,"bot1",["play_sound","tell_joke","disconnect"],None),
+                                                  pytest.param("basic_auth",basic_auth,"bot1", ["unkown_intent"],"", marks=pytest.mark.xfail(raises=WrongInput)),
+                                                            ])
+    
+    def test_patch(self,added_bots,auth_type,secret,name,intents,url):
+        body = {}
+        if intents:
+            body.update(intents=intents)
+        if url:
+            body.update(url=url)
+        req_url = endpoint+"/"+name
+        if auth_type == "basic_auth":
+            headers = {"Authorization":secret}
+            resp = requests.put(req_url,json=body,headers=headers)
+        else:
+            body.update(token=secret)
+            resp = requests.put(req_url,json=body) 
+        if not resp.ok:
+            if resp.status_code == 401:
+                raise AuthenticationErr(json.dumps(resp.json()))
+            elif resp.status_code == 400:
+                raise WrongInput(json.dumps(resp.json()))
+            elif resp.status_code == 404:
+                raise BotNotFoundErr(json.dumps(resp.json()))
+            elif resp.status_code == 409:
+                raise ConflictErr(json.dumps(resp.json()))
+            elif resp.status_code == 405:
+                raise MethodNotAllowedErr(json.dumps(resp.json()))
+            elif resp.status_code == 406:
+                raise BotNotCapableErr(json.dumps(resp.json()))
+            else:
+                raise InternalServerErr(resp.content.decode())
+        
+
+    @pytest.mark.parametrize("auth_type,secret,name", [
+                                                  pytest.param("basic_auth","WrongCredentials","skip_basic_auth", marks=pytest.mark.xfail(raises=AuthenticationErr)),
+                                                  pytest.param("token","WrongCredentials","skip_token", marks=pytest.mark.xfail(raises=AuthenticationErr)),
+                                                  ("basic_auth",basic_auth,"bot1"),
+                                                  pytest.param("basic_auth",basic_auth,"bot2", marks=pytest.mark.xfail(raises=BotNotFoundErr)),
+                                                            ])
+    
+    def test_delete(self,added_bots,auth_type,secret,name):
+        body = {}
+      
+        req_url = endpoint+"/"+name
+        if auth_type == "basic_auth":
+            headers = {"Authorization":secret}
+            resp = requests.delete(req_url,json=body,headers=headers)
+        else:
+            body.update(token=secret)
+            resp = requests.delete(req_url,json=body) 
+        if not resp.ok:
+            if resp.status_code == 401:
+                raise AuthenticationErr(json.dumps(resp.json()))
+            elif resp.status_code == 400:
+                raise WrongInput(json.dumps(resp.json()))
+            elif resp.status_code == 404:
+                raise BotNotFoundErr(json.dumps(resp.json()))
+            elif resp.status_code == 409:
+                raise ConflictErr(json.dumps(resp.json()))
+            elif resp.status_code == 405:
+                raise MethodNotAllowedErr(json.dumps(resp.json()))
+            elif resp.status_code == 406:
+                raise BotNotCapableErr(json.dumps(resp.json()))
+            else:
+                raise InternalServerErr(resp.content.decode())
             
 
