@@ -8,15 +8,24 @@ class BotAlreadyExistErr(Exception):
 class ValidationErr(Exception):
     pass
 
+class NotCapableErr(Exception):
+    pass
+
+def check_capability(func):
+    def wrapper(bot_instance):
+        if func.__name__ in bot_instance.intents:
+            return func(bot_instance)
+        else:
+            print("The bot is not capable of doing it")
+            raise NotCapableErr("The bot is not capable of doing it")
+    return wrapper
+
 
 class Bot:
     VALIDATION_SCHEMA = {"intents":{"type":list,"allowed":["play_sound","tell_joke","disconnect"]},"url":{"type":str}}
 
     def validate(params):
         for key in params:
-            if key == "token":
-                continue
-
             input = params[key]
             if key not in Bot.VALIDATION_SCHEMA.keys():
                 raise ValidationErr("Unexpected param : %s" % key)
@@ -30,7 +39,6 @@ class Bot:
                 if set(input) - set(alloweds):
                     raise ValidationErr("Allowed items for param %s -> %s" % (key,",".join(alloweds)))
 
-        params.pop("token",None)
         return params
 
     name = None
@@ -100,6 +108,28 @@ class Bot:
         self.name = None
         self.intents = None
         self.url = None
+
+    @check_capability
+    def play_sound(self):
+        print("Im playing a sound")
+        return "Im playing a sound"
+
+    @check_capability
+    def tell_joke(self):
+        print("Im telling a joke")
+        return "Im telling a joke"
+    
+    @check_capability
+    def disconnect(self):
+        print("Disconnected")
+        return "Disconnected"
+
+    @check_capability
+    def unexpected(self):
+        pass
+    
+
+
    
 
         

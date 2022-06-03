@@ -1,10 +1,9 @@
 from sqlite3 import paramstyle
-from models import Bot,BotAlreadyExistErr,ValidationErr
+from models import Bot,BotAlreadyExistErr,ValidationErr,NotCapableErr
 from fastapi import FastAPI, Header,status,HTTPException,Request,Depends
 from typing import Optional
 
 from json.decoder import JSONDecodeError
-from fastapi.security import HTTPBasic, HTTPBasicCredentials
 import base64
 import config
 
@@ -13,7 +12,11 @@ app = FastAPI()
 basic_auth = "Basic "+base64.b64encode(f"{config.username}:{config.password}".encode()).decode()
 token = config.token
 
-security = HTTPBasic()
+
+def authenticator(json_body,basic_auth_str):
+    if not json_body.pop("token",None) == token and not basic_auth == basic_auth_str:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,detail="Wrong credentials")
+
 
 @app.get("/")
 async def root():
@@ -31,8 +34,7 @@ async def get_bot(bot_name,request: Request,authorization: Optional[str] = Heade
     except:
         body = {}
 
-    if not basic_auth == authorization and not body.get("token") == token :
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,detail="Wrong credentials")
+    authenticator(body,authorization)
 
     bot = Bot.get(name=bot_name)
     if not bot:
@@ -51,12 +53,11 @@ async def post_bot(bot_name,request: Request,authorization: Optional[str] = Head
     print(body)
 
 
-    if not basic_auth == authorization and not body.get("token") == token :
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,detail="Wrong credentials")
+    authenticator(body,authorization)
         
 
     try:
-        body = Bot.validate(body)
+        Bot.validate(body)
     except ValidationErr as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,detail=str(e))
 
@@ -78,12 +79,11 @@ async def put_bot(bot_name,request: Request,authorization: Optional[str] = Heade
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,detail="Bad json body")
     print(body)
 
-    if not basic_auth == authorization and not body.get("token") == token :
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,detail="Wrong credentials")
+    authenticator(body,authorization)
 
 
     try:
-        body = Bot.validate(body)
+        Bot.validate(body)
     except ValidationErr as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,detail=str(e))
 
@@ -108,11 +108,10 @@ async def patch_bot(bot_name,request: Request,authorization: Optional[str] = Hea
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,detail="Bad json body")
     print(body)
 
-    if not basic_auth == authorization and not body.get("token") == token :
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,detail="Wrong credentials")
+    authenticator(body,authorization)
 
     try:
-        body = Bot.validate(body)
+        Bot.validate(body)
     except ValidationErr as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,detail=str(e))
 
@@ -135,8 +134,7 @@ async def delete_bot(bot_name,request: Request,authorization: Optional[str] = He
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,detail="Bad json body")
     print(body)
 
-    if not basic_auth == authorization and not body.get("token") == token :
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,detail="Wrong credentials")
+    authenticator(body,authorization)
 
     bot = Bot.get(name=bot_name)
     if not bot:
@@ -147,5 +145,23 @@ async def delete_bot(bot_name,request: Request,authorization: Optional[str] = He
     return {"result":"ok"}
 
 
+@app.get("/bot/{bot_name}/{intent}")
+async def get_bot(bot_name,intent,request: Request,authorization: Optional[str] = Header(None)):
+    try:
+        body = await request.json()
+    except:
+        body = {}
 
+    authenticator(body,authorization)
+
+    bot = Bot.get(name=bot_name)
+    if not bot:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="Bot name not found")
+
+    try:
+        result = getattr(bot,intent,bot.unexpected)()
+    except NotCapableErr as e:
+        result = str(e)
+
+    return {"result":result}
 

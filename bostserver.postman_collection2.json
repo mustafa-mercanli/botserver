@@ -136,6 +136,32 @@
 				"description": "Get a bot"
 			},
 			"response": []
+		},
+		{
+			"name": "http://127.0.0.1:8000/bot/mustafa/play_sound",
+			"request": {
+				"url": "http://127.0.0.1:8000/bot/mustafa/play_sound",
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": "",
+						"disabled": true
+					},
+					{
+						"key": "Authorization",
+						"value": "Basic YWRtaW46YWRtaW4=",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"url\":\"abc31.com\",\n\t\"token\":\"sup3rs3cr3t\",\n\t\"intents\":[\"play_sound\",\"tell_joke\"]\n\t\n}"
+				},
+				"description": "Run an Intent"
+			},
+			"response": []
 		}
 	]
 }
