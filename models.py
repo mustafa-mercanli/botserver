@@ -11,6 +11,9 @@ class ValidationErr(Exception):
 class NotCapableErr(Exception):
     pass
 
+
+#This decorator function checks the bot has the intent. 
+#If not doesnt allow to run this function
 def check_capability(func):
     def wrapper(bot_instance):
         if func.__name__ in bot_instance.intents:
@@ -24,6 +27,7 @@ def check_capability(func):
 class Bot:
     VALIDATION_SCHEMA = {"intents":{"type":list,"allowed":["play_sound","tell_joke","disconnect"]},"url":{"type":str}}
 
+    #This function makes validation of dict object to create proper bot instance
     def validate(params):
         for key in params:
             input = params[key]
@@ -48,6 +52,7 @@ class Bot:
     current_instance = None
 
 
+    #Id generation not allowed to client
     def set_id(self):
         import time
         self.id = int(time.time())
@@ -58,14 +63,18 @@ class Bot:
         self.url = url
     
     
+    #Simply convert bot object into json data
     def json(self):
         return {"id":self.id,"name":self.name,"intents":self.intents,"url":self.url}
 
     
+    #when printing the bot object, write it as json
     def __str__(self):
         return json.dumps(self.json())
 
 
+    #If you want to obtain an existing bot instance in redis, you can call this static method
+    #It returns a bot instance
     def get(name:str):
         found = r.get(name)
         if found:
@@ -76,8 +85,11 @@ class Bot:
             instance.current_instance.id = jsn["id"]
             return instance
 
+
+    #You can save a bot intsance using its save function.
+    #Json data stored in redis database
     def save(self):
-        if self.current_instance:
+        if self.current_instance:#This is for an update operation
             new_instance = self.json()
             new_instance.update(id=self.current_instance.id)
             if self.current_instance.name == self.name:
@@ -101,6 +113,8 @@ class Bot:
         r.set(self.name,json.dumps(self.json()))
         print("Saved new object with id",self.id)
 
+
+    #Delete bot instance in redis
     def delete(self):
         r.delete(self.name)
         print("Deleted object with id",self.id)
@@ -128,7 +142,7 @@ class Bot:
     def unexpected(self):
         pass
     
-    
+    #Flush the redis database
     def clear_bots():
         for key in r.keys():
             r.delete(key)

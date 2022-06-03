@@ -48,17 +48,22 @@ class TestBotServer:
         
 
     @pytest.mark.parametrize("auth_type,secret,name,intents,url", [
-                                                  pytest.param("basic_auth","WrongCredentials","skip_basic_auth", "","", marks=pytest.mark.xfail(raises=AuthenticationErr)),
+                                                  #Check if server raises error properly, if send wron credentials
+                                                  pytest.param("basic_auth","WrongCredentials","skip_basic_auth", "","", marks=pytest.mark.xfail(raises=AuthenticationErr)), 
                                                   pytest.param("token","WrongCredentials","skip_token","","", marks=pytest.mark.xfail(raises=AuthenticationErr)),
                                                   ("basic_auth",basic_auth,"bot_for_basic_auth_test",[],""),
+                                                  #The server have to support both basic_auth and token auth
                                                   ("token",token,"bot_for_token_test",[],""),
                                                   ("basic_auth",basic_auth,"bot1",["play_sound","tell_joke","disconnect"],"bot1.com"),
+                                                  #Expect server to prevent duplicate botnames
                                                   pytest.param("basic_auth",basic_auth,"bot1", [],"", marks=pytest.mark.xfail(raises=ConflictErr)),
+                                                  #Expect server not to create a bot with wrong parameters
                                                   pytest.param("basic_auth",basic_auth,"bot2", ["unkown_intent"],"bot3.com", marks=pytest.mark.xfail(raises=WrongInput)),
                                                             ])
     def test_post(self,added_bots,auth_type,secret,name,intents,url):
         body = {"intents":intents,"url":url}
         req_url = endpoint+"/"+name
+        #Change the request authentication method depends on auth_type parameter
         if auth_type == "basic_auth":
             headers = {"Authorization":secret}
             resp = requests.post(req_url,json=body,headers=headers)

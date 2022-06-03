@@ -1,6 +1,5 @@
-from sqlite3 import paramstyle
 from models import Bot,BotAlreadyExistErr,ValidationErr,NotCapableErr
-from fastapi import FastAPI, Header,status,HTTPException,Request,Depends
+from fastapi import FastAPI, Header,status,HTTPException,Request
 from typing import Optional
 
 from json.decoder import JSONDecodeError
@@ -13,6 +12,7 @@ basic_auth = "Basic "+base64.b64encode(f"{config.username}:{config.password}".en
 token = config.token
 
 
+#If neighter client sends basic authentication nor token authentication, raise authenticaion error
 def authenticator(json_body,basic_auth_str):
     if not json_body.pop("token",None) == token and not basic_auth == basic_auth_str:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,detail="Wrong credentials")
